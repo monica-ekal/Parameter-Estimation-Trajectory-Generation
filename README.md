@@ -7,7 +7,7 @@ The documentation for this repo is a work in progress. Code files are fairly den
 ## To run:
 
 1. Install the ACADO Toolkit, following the instructions [here](https://acado.github.io/matlab_overview.html). Be sure to add ACADO to your path, which can be done in `NMPC_6DoF_main.m`.
-2. Run `generate_NMPC_solver_*.m` in the ACADO_generator/ folder.
+2. Run `generate_NMPC_solver_6DoF.m` in the ACADO_generator/ folder.
 3. Run `generate_simulator_6DoF.m` in the ACADO_generator/ folder.
 4. Run `NMPC_6DoF_main.m`.
 
