@@ -5,12 +5,12 @@ Plots test case results. Called from main_* routine.
 
 Inputs:
 store_results - a struct created by the main_* routine containing plotting information
-L - length
-M - mass
+L - length of vector of estimates
+M - length of vector of measurements
 param - parameters to be estimated
 meas - measurements
-F_horizon - forces over the horizon
-F_total
+F_horizon - Fisher Information over the horizon
+F_total - Total Fisher information about by FI summation over each time step
 control_ip - control inputs
 states - states
 real_vals - actual state values

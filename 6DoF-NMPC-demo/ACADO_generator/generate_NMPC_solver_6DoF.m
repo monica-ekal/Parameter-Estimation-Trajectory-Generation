@@ -29,12 +29,6 @@ dt = 1;  % length of step
 N = 40;  % length of horizon
     
 %% Dynamic equations.
-
-%TODO: these need to be estimated from the KF
-% I_xx = 10.0;
-% I_yy = 10.0;
-% I_zz = 10.0;
-
 I = [I_xx 0    0;
      0    I_yy 0;
      0    0    I_zz];
@@ -168,26 +162,15 @@ function [FIM] = CalcFIM(psi)
     psi_matrix2 = [ psi(7:13)  psi(14:20)  psi(21:27)];
     
     FIM1 = ((dh_x1*psi_matrix1)'*inv_R*(dh_x1*psi_matrix1));    % H' * inv_R * H = [1 x 1]
-    FIM2 = ((dh_x2*psi_matrix2)'*inv_R*(dh_x2*psi_matrix2));    % H' * inv_R * H = [1 x 1]
+    FIM2 = ((dh_x2*psi_matrix2)'*inv_R*(dh_x2*psi_matrix2));    % H' * inv_R * H = [3 x 3]
     
     FIM =[ FIM1   zeros(1,3);
            0      FIM2     ]
-    
-%     % reassemble the psi_matrix by using the separated psi states. The
-%     % psi_matrix will be 7x3.
-%     FIM = [FIM1_1          0;
-%              0            FIM2_2];  % [j x j]
-%          
-    % convert to a usable scalar
+
 
 end
 
 function[psi_dot] = Calc_psidot(x,v,q,w,Mass,I_xx,I_yy,I_zz,u,psi)
-     % x_dot = f(x,theta,T);
-%     f = [ w_z; u(3)/I_zz ];
-%     df_x = simplify(jacobian(f, [theta_z; w_z]));  % Jacobian (df/dx)
-%     df_theta = simplify(jacobian(f, [I_zz])); % Jacobian (df/dtheta)
-%     psi_dot = df_x*psi + df_theta;  % d/dt[ dx/dtheta ]
     
     I = [I_xx 0    0;
          0    I_yy 0;
@@ -206,12 +189,10 @@ function[psi_dot] = Calc_psidot(x,v,q,w,Mass,I_xx,I_yy,I_zz,u,psi)
     df_theta1 =  simplify(jacobian(f1,Mass)); % Jacobian (df/dtheta)
     df_theta2 =  simplify(jacobian(f2,[I_xx;I_yy;I_zz]));
 
-
-%     psi_dot(1:6,1) = df_x1*psi(1:6)+df_theta1;
     psi_dot(1:6,1) = df_x1*psi(1:6)+df_theta1; %df/dMass  % d/dt [ dx/dtheta ]
     psi_dot(7:13,1) = df_x2*psi(7:13)+df_theta2(:,1); %df/dI_xx  % d/dt [ dx/dtheta ]
     psi_dot(14:20,1) = df_x2*psi(14:20)+df_theta2(:,2); %df/dI_xx  % d/dt [ dx/dtheta ]
     psi_dot(21:27,1) = df_x2*psi(21:27)+df_theta2(:,3); %df/dI_xx  % d/dt [ dx/dtheta ]
 
-    psi_dot
+%     psi_dot
 end

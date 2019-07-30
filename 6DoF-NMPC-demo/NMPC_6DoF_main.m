@@ -30,7 +30,7 @@ Keenan Albee, Monica Ekal, 2019.
  
 %% Initialization
 
-% estimator = RunUKF([2;0;2;0]);  % Assumed initial states % Initialize with first measurements
+
 Objective_value = [];
 tf = 100;  % final time, s
 Ts = 1;  % estimator time step, s
@@ -45,11 +45,10 @@ r = [1e-2;1e-2; 1e-2; 1e-2; 1e-2;1e-2];  % SD of measurement and process noise
 q = [1e-5; 1e-5; 1e-5; 1e-5];
         
 m_est = 2; I_xx_est = 3.5; I_yy_est = 3.5; I_zz_est = 3.5;
-inv_R = inv(diag([sigma*ones(6,1)]));% P0 = (0.5(xu-xl))'*(0.5(xu-xl)),xu = 12, xl = 5
+inv_R = inv(diag([sigma*ones(6,1)]));
 P1 = diag([20;20;20;20]);
-x_hat = [m_est;I_xx_est;I_yy_est;I_zz_est]; %[0.5]; % x0_hat = 0.5*(xu + xl); %
-%(based on Schneider and Georgakis, 2013. How to not make the extended Kalman filter fail.)
-% estimator = Run_UKF(x_hat, P1);
+x_hat = [m_est;I_xx_est;I_yy_est;I_zz_est];
+
 estimator = Run_UKF_(x_hat, P1, Ts);
 estimator.set_noise_properties(q, r);
 estimator.set_y_tilde_prev([0; 0; 0; 0; 0; 0]);
@@ -61,14 +60,13 @@ state_sim = [2;2;2; 0;0;0; 0.2227177;0.0445435;0.4454354;0.8660254; 0;0;0.0]';  
 % state_sim = [0;0;0; 0;0;0;1; 0;0;0; 0.0;0.0;0.0]';
 
 %% NMPC variables
-input_NMPC.x = repmat([state_sim'; zeros(27,1)]', N+1, 1); % initial values of states, including the four added ones for FIM calculations
-input_NMPC.u = repmat([ 0.1 ; 0.1; 0.1; 0.1;0.1;0.1]',N,1);               % matrix of horizon number of control inputs
-input_NMPC.W = eye(13);                   % weight matrix; the first element is for the FIM., the rest are for states
-input_NMPC.W(1,1) = 0;             % to see effects with and without FIM
-% input_NMPC.W(5,5) = 1000;  % quaternion error metric
-input_NMPC.WN = eye(12)*1e2;              % Weigh for the terminal cost
+input_NMPC.x = repmat([state_sim'; zeros(27,1)]', N+1, 1);  % initial values of states, including the four added ones for FIM calculations
+input_NMPC.u = repmat([ 0.1 ; 0.1; 0.1; 0.1;0.1;0.1]',N,1); % matrix of horizon number of control inputs
+input_NMPC.W = eye(13);                     % weight matrix; the first element is for the FIM., the rest are for states
+% input_NMPC.W(1,1) = 0;                    % set to 0 to see effects without FIM weighting
+input_NMPC.WN = eye(12)*1e2;                % Weight for the terminal cost
 input_NMPC.y = repmat(zeros(1,13), N, 1);
-input_NMPC.yN = zeros(1,12);              % reference for the minimizing function, what does it do?
+input_NMPC.yN = zeros(1,12);                % reference for the minimizing function
 
 %% FIM variables
 dh_x = [zeros(3) eye(3) zeros(3,7) ;
@@ -131,9 +129,8 @@ while time <= tf
     vels_tilde_prev = [input_sim.x(4:6); input_sim.x(11:13)];
     vels_tilde_next = z;
     
-    % --- NOTE: comment for comparison without updates
-%     [estimator] = 
-estimator.UKF_Loop_6DoF(input_sim.u,vels_tilde_next); 
+    % --- NOTE: comment for comparison without updates regarding recent parameter estimates ---
+    estimator.UKF_Loop_6DoF(input_sim.u,vels_tilde_next); 
     
     m_est = estimator.x_hat(1);
     I_xx_est = estimator.x_hat(2);
@@ -142,9 +139,9 @@ estimator.UKF_Loop_6DoF(input_sim.u,vels_tilde_next);
     
     info{1} = output_sim.value;
     info{2} = time;
-%     W = gamma_shifter(input_NMPC.W, info);
-%     input_NMPC.W = W;  % update gamma
-    % ---
+    W = gamma_shifter(input_NMPC.W, info);
+    input_NMPC.W = W;  % update gamma
+    % --------
 
     time = time + Ts;
     P = diag(estimator.P1);  % for plotting diagonals of the covariance  
@@ -154,18 +151,9 @@ end
 
 %% Misc plotting
 
-% anim_FK3(state_sim(:,1:3), state_sim(:,7:10));
-% plot_results_general(store_results,size(P),size(z,1),string({'Mass','Ixx','Iyy','Izz'}), 'velocities',F_horizon,F_aggregate,control_ip,state_sim,[9.7 7 7 10]) 
 plot_results_general_no_estimates(store_results,size(P),size(z,1),string({'Mass','Ixx','Iyy','Izz'}), 'velocities',F_horizon,F_aggregate,control_ip,state_sim,[9.7 7 7 10]) 
-norm(estimator.x_hat - [9.7;7;7;10],'fro') % frobenius norm of errors.
+%norm(estimator.x_hat - [9.7;7;7;10],'fro') % frobenius norm of errors.
 
-% figure()
-% subplot(2,1,1)
-% plot(1:tf,Norm)
-% title(' Quat Norm, NMPC first propagated state')
-% subplot(2,1,2)
-% plot(1:tf,Avg_norm_over_Horizon)
-% title('Quat Avg norm over each horizon')
 
 %% Utility functions
 

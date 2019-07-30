@@ -13,13 +13,13 @@ y_tilde - angular velocities
 FandT - applied torques
 
 Outputs: 
+Estimated mass, Ixx, Iyy and Izz and their covariances
 
 %}
 classdef Run_UKF_ < handle
   
     
      properties
-       %public read access, but private write access.
        P1
        x_hat
      end   
