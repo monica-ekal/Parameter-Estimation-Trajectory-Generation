@@ -24,3 +24,5 @@ The documentation for this repo is a work in progress. Code files are fairly den
 * `ACADO_generator/generate_NMPC_solver_6DoF` - handles creating a weighting matrix, state vector, Fisher information terms, and interfacing with the ACADO NMPC API
 
 * `ACADO_generator/generate_simulator_6DoF` - handles the 6DoF rigid body dynamics and interfacing with the ACADO API to generate a fast solver
+
+![](NMPC_6DoF_main/media/FIM.gif)
