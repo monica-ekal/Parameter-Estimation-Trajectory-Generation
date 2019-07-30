@@ -26,5 +26,5 @@ The documentation for this repo is a work in progress. Code files are fairly den
 * `ACADO_generator/generate_simulator_6DoF` - handles the 6DoF rigid body dynamics and interfacing with the ACADO API to generate a fast solver
 
 ![](/6DoF-NMPC-demo/media/FIM.gif)
-![](/6DoF-NMPC-demo/media/Without updates.gif)
+![](/6DoF-NMPC-demo/media/Without_updates.gif)
 
